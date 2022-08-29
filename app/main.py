@@ -1,4 +1,8 @@
 from fastapi import FastAPI
+from core import config
+from core.log.base_logger import logging
+
+logging.info(f"Using the following settings: {config.settings}")
 
 
 def get_app() -> FastAPI:
