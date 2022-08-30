@@ -3,6 +3,11 @@ from typing import Optional
 from app.core.config import settings
 from pydantic import AnyUrl, BaseSettings, validator
 
+from beanie import init_beanie
+from motor.motor_asyncio import AsyncIOMotorClient
+
+from app.models.favs import FavoriteSongDB
+
 
 class DatabaseConnector(BaseSettings):
     """Load database settings and build valid URI."""
@@ -39,3 +44,21 @@ class DatabaseConnector(BaseSettings):
             )  # build URI string for local mongodb  # otherwise, try to build URI with current settings
         except Exception:
             raise AttributeError(v)
+
+    async def initialize_db(self) -> None:
+        """
+        Start db client with Beanie and load document models.
+        """
+        # Using motor to instatiate the db client
+        client = AsyncIOMotorClient(self.MONGO_DB_URI)
+        models = [FavoriteSongDB]
+
+        try:
+            await init_beanie(
+                database=client[settings.MONGO_DB], document_models=models
+            )
+        except Exception:
+            raise ConnectionError("Database initialization failed.")
+
+
+db = DatabaseConnector()  # import this instance in main.py
