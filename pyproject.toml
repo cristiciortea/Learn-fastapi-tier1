@@ -20,5 +20,6 @@ black = "^22.6.0"
 ipython = "^8.4.0"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+# poetry should be the same as `$POETRY_VERSION`
+requires = ["poetry>=1.2.0", "poetry-core>=1.1.0"]
 build-backend = "poetry.core.masonry.api"
