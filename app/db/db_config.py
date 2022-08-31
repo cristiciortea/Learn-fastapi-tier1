@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 
 from app.core.config import settings
@@ -21,6 +22,7 @@ class DatabaseConnector(BaseSettings):
 
         if settings.MONGO_HOST in ("localhost", "127.0.0.1"):
             try:
+                logging.debug("Building an URI for localhost dev configuration")
                 return AnyUrl.build(
                     host=settings.MONGO_HOST,
                     port=settings.MONGO_PORT,
@@ -34,6 +36,7 @@ class DatabaseConnector(BaseSettings):
                 raise AttributeError(v)
 
         try:
+            logging.debug("Building an URI for production configuration")
             return AnyUrl.build(
                 host=settings.MONGO_HOST,
                 user=settings.MONGO_USER,
@@ -49,6 +52,9 @@ class DatabaseConnector(BaseSettings):
         """
         Start db client with Beanie and load document models.
         """
+        logging.debug("Initializing db...")
+        logging.debug(f"Using mongodb uri: {self.MONGO_DB_URI}")
+
         # Using motor to instatiate the db client
         client = AsyncIOMotorClient(self.MONGO_DB_URI)
         models = [FavoriteSongDB]
@@ -57,8 +63,13 @@ class DatabaseConnector(BaseSettings):
             await init_beanie(
                 database=client[settings.MONGO_DB], document_models=models
             )
+            logging.info(f"Connected to database: {settings.MONGO_DB}.")
         except Exception:
             raise ConnectionError("Database initialization failed.")
 
 
 db = DatabaseConnector()  # import this instance in main.py
+logging.debug(
+    f'Settings MONGO HOST: {settings.MONGO_HOST} expr: {settings.MONGO_HOST in ("localhost", "127.0.0.1")}'
+)
+logging.debug(f"Db_config settings: {db}")

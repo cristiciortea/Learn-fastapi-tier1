@@ -1,11 +1,9 @@
 from pathlib import Path
 from typing import Optional
 from pydantic import BaseModel, BaseSettings, Field
+from pydantic.tools import lru_cache
 
-# from log.base_logger import logging
-import sys
-
-print(sys.path)
+from app.core.base_logger import logging
 
 APP_ROOT = Path(__file__).parent.parent
 
@@ -16,13 +14,18 @@ class AppSettings(BaseModel):
     Will be accessed as `more settings` in within app.
     """
 
-    ...
+    title: str = "Favorite Song Application"
+    description: str = "This application is a FastAPI Web App that helps you collect all your favorite songs"
+    version: str = "0.0.1"
+    docs_url: str = "/docs"
 
 
 class GlobalSettings(BaseSettings):
     """
     Inherits `BaseSettings` from pydantic to provide helpful settings validation and management
     """
+
+    more_settings: AppSettings = AppSettings()
 
     APP_DIR: Path = APP_ROOT
 
@@ -78,5 +81,15 @@ class FactorySettings:
             raise ValueError(f"Invalid env_state: {self.env_state}")
 
 
-settings = FactorySettings(GlobalSettings().ENV_STATE)()
-# logging.debug(f'Using following environment: {settings.ENV_STATE}')
+# settings = FactorySettings(GlobalSettings().ENV_STATE)()  # old way
+
+
+@lru_cache()
+def get_app_settings() -> DevSettings | ProdSettings:
+    """Returns a cached instance of the settings object."""
+
+    return FactorySettings(GlobalSettings().ENV_STATE)()
+
+
+settings = get_app_settings()
+logging.debug(f"Using following environment: {settings.ENV_STATE}")
