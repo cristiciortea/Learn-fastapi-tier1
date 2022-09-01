@@ -36,13 +36,37 @@ function run_cmd()  {
 }
 
 : '
+This function builds application image
+'
+function build_fastapi_app() {
+    cd ../
+    echo pwd
+    docker build -t fastapi_learn:v0.4 . -f '.\docker\Dockerfile' --no-cache --build-arg ENV_STATE=dev --build-arg POETRY_VERSION=1.2.0
+}
+
+: '
 This function starts the mongodb container
 '
 function start_mongodb() {
-    docker run --name mongodb -v C:\data\db\:/data/db -p 27017:27017 --network bridge -d mongo
+    docker run --name mongodb -v C:\data\db\:/data/db -p 27017:27017 --network host -d --rm mongo
 }
 
+: '
+This function starts the fastAPI container
+'
+function start_fastapi_app() {
+    docker run --name fastapi_learn -p 8000:8000 --network host -d --rm -it fastapi_learn:v0.4 /bin/bash -c 'poetry run uvicorn app.main:app --reload'
+}
+
+: '
+This function to kill all containers
+'
+function kill_docker_containers() {
+    docker kill $(docker ps -q)
+}
 
 # ------------------------------------------------------- main ------------------------------------------------------- #
 
+run_cmd build_fastapi_app
 run_cmd start_mongodb
+run_cmd start_fastapi_app
