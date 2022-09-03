@@ -1,0 +1,1 @@
+Start the application using the shell command: ``./docker/run.sh``
