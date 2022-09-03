@@ -24,8 +24,8 @@ function run_cmd()  {
   fi
 
   # Run given command and heck status of ran command
-  mycommand=${1}
-  if ! output=$(${mycommand}); then
+  my_command=${1}
+  if ! output=$(${my_command}); then
     echo "[$(date -u +"%Y-%m-%d %H:%M:%S")]:[ERROR]: Command failed!: --$1--"
     echo "[$(date -u +"%Y-%m-%d %H:%M:%S")]:[ERROR]: Command output: ${output}"
   else
@@ -39,23 +39,23 @@ function run_cmd()  {
 This function builds application image
 '
 function build_fastapi_app() {
-    cd ../
-    echo pwd
-    docker build -t fastapi_learn:v0.4 . -f '.\docker\Dockerfile' --no-cache --build-arg ENV_STATE=dev --build-arg POETRY_VERSION=1.2.0
+    docker build -t fastapi_learn:v0.4 . -f './docker/Dockerfile' --no-cache --build-arg ENV_STATE=dev --build-arg POETRY_VERSION=1.2.0
 }
 
 : '
 This function starts the mongodb container
 '
 function start_mongodb() {
-    docker run --name mongodb -v C:\data\db\:/data/db -p 27017:27017 --network host -d --rm mongo
+#    docker run --name mongodb -v ~/Projects/Personal/Learn_fastapi/mongodb/:/data/db -p 27017:27017 --network host -d --rm mongo
+    docker run --name mongodb -v ~/Projects/Personal/Learn_fastapi/mongodb/:/data/db -p 27017:27017 -d --rm mongo
 }
 
 : '
 This function starts the fastAPI container
 '
 function start_fastapi_app() {
-    docker run --name fastapi_learn -p 8000:8000 --network host -d --rm -it fastapi_learn:v0.4 /bin/bash -c 'poetry run uvicorn app.main:app --reload'
+#    docker run --name fastapi_learn -p 8000:8000 --network host -d --rm -it fastapi_learn:v0.4 /bin/bash -c 'poetry run uvicorn app.main:app --reload'
+    docker run --name fastapi_learn -p 8000:8000 -d --rm -it fastapi_learn:v0.4 /bin/bash -c 'poetry run uvicorn app.main:app --reload'
 }
 
 : '

@@ -12,6 +12,7 @@ ENV ENV_STATE=${ENV_STATE} \
 SHELL ["/bin/bash", "-eo", "pipefail", "-c"]
 
 # System dependencies
+RUN pip install --upgrade pip
 RUN pip install "poetry==${POETRY_VERSION}"
 
 # Copy only requirements to cache them in docker layer
@@ -27,4 +28,4 @@ RUN poetry config virtualenvs.create false \
 COPY . /code/
 
 # Expose container port
-EXPOSE 8000
+#EXPOSE 8000
